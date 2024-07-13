@@ -52,7 +52,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   // String dropdownValue = 'No';
   String? dropdownValue;
-  bool? isBottleCollected;
+  String? isBottleCollected;
 
   int selectedIndex = 1;
   late Datum order;
@@ -121,179 +121,187 @@ class _OrderDetailsState extends State<OrderDetails> {
     });
   }
 
+  final formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true,
-      onPopInvoked: (val) async {
-        //Get.back();
-        if (widget.orderHistory == false) {
-          getOrderApi(url: "", orderHistory: widget.orderHistory);
-        }
-      },
-      child: StackedScaffold(
-        actionIcon: Stack(
-          children: [
-            Transform.scale(
-              scale: .8,
-              child: CustomIconButton(
-                path: IconUtil.bell,
-                onTap: () {
-                  getNotificationApi(url: "");
-                  Get.to(() => const NotificationScreen());
-                },
+    return Form(
+      key: formKey,
+      child: PopScope(
+        canPop: true,
+        onPopInvoked: (val) async {
+          //Get.back();
+          if (widget.orderHistory == false) {
+            getOrderApi(url: "", orderHistory: widget.orderHistory);
+          }
+        },
+        child: StackedScaffold(
+          actionIcon: Stack(
+            children: [
+              Transform.scale(
+                scale: .8,
+                child: CustomIconButton(
+                  path: IconUtil.bell,
+                  onTap: () {
+                    getNotificationApi(url: "");
+                    Get.to(() => const NotificationScreen());
+                  },
+                ),
               ),
-            ),
-            Obx(
-              () => authController.notificationCount.value.toString() == "0"
-                  ? const SizedBox()
-                  : Positioned(
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                            shape: BoxShape.circle, color: Colors.red),
-                        child: Text(
-                          authController.notificationCount.value.toString(),
-                          style: const TextStyle(color: Colors.white),
+              Obx(
+                () => authController.notificationCount.value.toString() == "0"
+                    ? const SizedBox()
+                    : Positioned(
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.red),
+                          child: Text(
+                            authController.notificationCount.value.toString(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
-                    ),
-            )
-          ],
-        ),
-        leadingIcon: Material(
-          color: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
+              )
+            ],
           ),
-          child: InkResponse(
-            customBorder: RoundedRectangleBorder(
+          leadingIcon: Material(
+            color: Colors.transparent,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(100),
             ),
-            onTap: () {
-              Get.back();
-              if (widget.orderHistory == false) {
-                getOrderApi(url: "", orderHistory: widget.orderHistory);
-              }
-            },
-            child: Ink(
-              padding: const EdgeInsets.all(14),
-              child: Icon(
-                  UtilsHelper.rightHandLang
-                          .contains(appState.currentLanguageCode.value)
-                      ? Icons.arrow_forward
-                      : Icons.arrow_back,
-                  color: isDark.value ? Colors.white : ColorUtils.kcSecondary),
-            ),
-          ),
-        ),
-        stackedEntries: const [],
-        tittle: UtilsHelper.getString(context, 'order_details'),
-        body: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SpaceUtils.ks18.height(),
-                  SpaceUtils.ks120.height(),
-                  order.productOrdersDriver == null
-                      ? const ShimmerLoader(height: 100)
-                      : orderDetailFirstTile(orderData: order),
-                  SpaceUtils.ks24.height(),
-                  order.productOrdersDriver == null
-                      ? SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: const Row(
-                            children: [
-                              Expanded(child: ShimmerLoader(height: 60)),
-                              Expanded(child: ShimmerLoader(height: 60)),
-                            ],
-                          ),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 27),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 4,
-                                child: ArrowButton(
-                                  isUpdate: true,
-                                  onTap: () => setIndex(1),
-                                  tittle: UtilsHelper.getString(
-                                      context, 'ordered_products'),
-                                  color: selectedIndex == 1
-                                      ? ColorUtils.kcPrimary
-                                      : isDark.value
-                                          ? ColorUtils.kcBlack.withOpacity(0.34)
-                                          : ColorUtils.kcLightTextColor,
-                                ),
-                              ),
-                              SpaceUtils.ks10.width(),
-                              Expanded(
-                                flex: 3,
-                                child: ArrowButton(
-                                  isUpdate: true,
-                                  onTap: () => setIndex(0),
-                                  tittle: UtilsHelper.getString(
-                                      context, 'customer'),
-                                  color: selectedIndex == 0
-                                      ? ColorUtils.kcPrimary
-                                      : isDark.value
-                                          ? ColorUtils.kcBlack.withOpacity(0.34)
-                                          : ColorUtils.kcLightTextColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                  SpaceUtils.ks24.height(),
-                  order.productOrdersDriver == null
-                      ? const ShimmerLoader(height: 250)
-                      : selectedIndex == 0
-                          ? secondTile(orderDetail: order)
-                          : Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 27, right: 27),
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      UtilsHelper.getString(
-                                          context, 'products'),
-                                      style: FontStyleUtilities.h5(
-                                          fontWeight: FWT.semiBold),
-                                    ),
-                                    SpaceUtils.ks10.height(),
-                                    ...order.productOrdersDriver!.map(
-                                        (e) => productsTile(orderDetail: e))
-                                  ]),
-                            ),
-                  SpaceUtils.ks24.height(),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 27, right: 27),
-                    child: Text(
-                      UtilsHelper.getString(context, 'Delivery Status'),
-                      style: FontStyleUtilities.h5(fontWeight: FWT.semiBold),
-                    ),
-                  ),
-                  SpaceUtils.ks10.height(),
-                  order.productOrdersDriver == null
-                      ? const ShimmerLoader(height: 250)
-                      : paymentSummary(orderDetail: order),
-                  SpaceUtils.ks24.height(),
-                  order.productOrdersDriver == null
-                      ? const ShimmerLoader(height: 250)
-                      : collectedSummary(orderDetail: order),
-                  SpaceUtils.ks40.height(),
-                ],
+            child: InkResponse(
+              customBorder: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100),
+              ),
+              onTap: () {
+                Get.back();
+                if (widget.orderHistory == false) {
+                  getOrderApi(url: "", orderHistory: widget.orderHistory);
+                }
+              },
+              child: Ink(
+                padding: const EdgeInsets.all(14),
+                child: Icon(
+                    UtilsHelper.rightHandLang
+                            .contains(appState.currentLanguageCode.value)
+                        ? Icons.arrow_forward
+                        : Icons.arrow_back,
+                    color:
+                        isDark.value ? Colors.white : ColorUtils.kcSecondary),
               ),
             ),
-            Obx(() => homeController.detailLoading.isTrue
-                ? const Loader()
-                : const SizedBox())
-          ],
+          ),
+          stackedEntries: const [],
+          tittle: UtilsHelper.getString(context, 'order_details'),
+          body: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SpaceUtils.ks18.height(),
+                    SpaceUtils.ks120.height(),
+                    order.productOrdersDriver == null
+                        ? const ShimmerLoader(height: 100)
+                        : orderDetailFirstTile(orderData: order),
+                    SpaceUtils.ks24.height(),
+                    order.productOrdersDriver == null
+                        ? SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            child: const Row(
+                              children: [
+                                Expanded(child: ShimmerLoader(height: 60)),
+                                Expanded(child: ShimmerLoader(height: 60)),
+                              ],
+                            ),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 27),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 4,
+                                  child: ArrowButton(
+                                    isUpdate: true,
+                                    onTap: () => setIndex(1),
+                                    tittle: UtilsHelper.getString(
+                                        context, 'ordered_products'),
+                                    color: selectedIndex == 1
+                                        ? ColorUtils.kcPrimary
+                                        : isDark.value
+                                            ? ColorUtils.kcBlack
+                                                .withOpacity(0.34)
+                                            : ColorUtils.kcLightTextColor,
+                                  ),
+                                ),
+                                SpaceUtils.ks10.width(),
+                                Expanded(
+                                  flex: 3,
+                                  child: ArrowButton(
+                                    isUpdate: true,
+                                    onTap: () => setIndex(0),
+                                    tittle: UtilsHelper.getString(
+                                        context, 'customer'),
+                                    color: selectedIndex == 0
+                                        ? ColorUtils.kcPrimary
+                                        : isDark.value
+                                            ? ColorUtils.kcBlack
+                                                .withOpacity(0.34)
+                                            : ColorUtils.kcLightTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                    SpaceUtils.ks24.height(),
+                    order.productOrdersDriver == null
+                        ? const ShimmerLoader(height: 250)
+                        : selectedIndex == 0
+                            ? secondTile(orderDetail: order)
+                            : Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 27, right: 27),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        UtilsHelper.getString(
+                                            context, 'products'),
+                                        style: FontStyleUtilities.h5(
+                                            fontWeight: FWT.semiBold),
+                                      ),
+                                      SpaceUtils.ks10.height(),
+                                      ...order.productOrdersDriver!.map(
+                                          (e) => productsTile(orderDetail: e))
+                                    ]),
+                              ),
+                    SpaceUtils.ks24.height(),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 27, right: 27),
+                      child: Text(
+                        UtilsHelper.getString(context, 'Delivery Status'),
+                        style: FontStyleUtilities.h5(fontWeight: FWT.semiBold),
+                      ),
+                    ),
+                    SpaceUtils.ks10.height(),
+                    order.productOrdersDriver == null
+                        ? const ShimmerLoader(height: 250)
+                        : paymentSummary(orderDetail: order),
+                    SpaceUtils.ks24.height(),
+                    order.productOrdersDriver == null
+                        ? const ShimmerLoader(height: 250)
+                        : collectedSummary(orderDetail: order),
+                    SpaceUtils.ks40.height(),
+                  ],
+                ),
+              ),
+              Obx(() => homeController.detailLoading.isTrue
+                  ? const Loader()
+                  : const SizedBox())
+            ],
+          ),
         ),
       ),
     );
@@ -701,9 +709,20 @@ class _OrderDetailsState extends State<OrderDetails> {
             SpaceUtils.ks10.height(),
             widget.orderHistory == true
                 ? const SizedBox()
-                : TextField(
+                : TextFormField(
                     controller: noOfBottle,
+                    validator: (value) {
+                      if (dropdownValue == 'Yes' ||
+                          dropdownValue == 'Damaged' &&
+                              noOfBottle.text == 0.toString()) {
+                        return 'Bottle count must be more than 0.';
+                      }
+                      return null;
+                    },
                     keyboardType: TextInputType.number,
+                    readOnly: dropdownValue == 'No' ||
+                        dropdownValue == 'Not applicable',
+
                     // obscureText: isObs!,
                     decoration: InputDecoration.collapsed(
                         hintText: "Enter number of bottles collected",
@@ -719,12 +738,14 @@ class _OrderDetailsState extends State<OrderDetails> {
               isBusy: homeController.updateLoading.value,
               onTap: () async {
                 FocusScope.of(context).unfocus();
-                updateCollectedBottle(
-                    isBottleCollected!,
-                    noOfBottle.text.toString(),
-                    widget.orderData.productOrdersDriver![0]
-                        .productDeliverysStatus![0].id
-                        .toString());
+                if (formKey.currentState!.validate()) {
+                  updateCollectedBottle(
+                      isBottleCollected!,
+                      noOfBottle.text.toString(),
+                      widget.orderData.productOrdersDriver![0]
+                          .productDeliverysStatus![0].id
+                          .toString());
+                }
               },
               tittle: "Submit",
             )
@@ -758,7 +779,19 @@ class _OrderDetailsState extends State<OrderDetails> {
         onChanged: (String? newValue) {
           setState(() {
             dropdownValue = newValue!;
-            isBottleCollected = newValue == "Yes" ? true : false;
+            if (newValue == 'No' || newValue == 'Not applicable') {
+              noOfBottle.text = 0.toString();
+            }
+            if (newValue == 'No') {
+              isBottleCollected = 0.toString();
+            } else if (newValue == 'Yes') {
+              isBottleCollected = 1.toString();
+            } else if (newValue == 'Damaged') {
+              isBottleCollected = 2.toString();
+            } else if (newValue == 'Not applicable') {
+              isBottleCollected = 3.toString();
+            }
+            print(isBottleCollected);
           });
         },
         items: <String>['Yes', 'No', 'Damaged', 'Not applicable']
