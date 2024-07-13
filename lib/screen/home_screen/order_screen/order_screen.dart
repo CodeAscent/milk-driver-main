@@ -127,54 +127,61 @@ class _OrderListState extends State<OrderList> {
           ),
         ],
       ),
-      extraWidget: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 27.0),
-        child: Row(
-          children: [
-            if (selectedDateFilter != null)
-              Text(
-                formatter.format(DateTime.parse(selectedDateFilter.toString())),
-                style: TextStyle(
-                  color: dark(context) ? Colors.white : ColorUtils.kcSecondary,
+      extraWidget: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 27.0),
+            child: Row(
+              children: [
+                if (selectedDateFilter != null)
+                  Text(
+                    formatter
+                        .format(DateTime.parse(selectedDateFilter.toString())),
+                    style: TextStyle(
+                      color:
+                          dark(context) ? Colors.white : ColorUtils.kcSecondary,
+                    ),
+                  ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    if (selectedDateFilter != null) {
+                      _filterByDate(null); //
+                      selectedDateFilter = null;
+                      setState(() {});
+                    }
+                  },
+                  child: Text(
+                    selectedDateFilter != null ? 'Clear Filter' : 'Date Filter',
+                    style: TextStyle(
+                      color:
+                          dark(context) ? Colors.white : ColorUtils.kcSecondary,
+                    ),
+                  ),
                 ),
-              ),
-            const Spacer(),
-            TextButton(
-              onPressed: () {
-                if (selectedDateFilter != null) {
-                  _filterByDate(null); //
-                  selectedDateFilter = null;
-                  setState(() {});
-                }
-              },
-              child: Text(
-                selectedDateFilter != null ? 'Clear Filter' : 'Date Filter',
-                style: TextStyle(
-                  color: dark(context) ? Colors.white : ColorUtils.kcSecondary,
+                IconButton(
+                  onPressed: () {
+                    showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime.now(),
+                    ).then((pickedDate) {
+                      if (pickedDate != null) {
+                        selectedDateFilter = pickedDate;
+                        _filterByDate(pickedDate);
+                      }
+                      setState(() {});
+                    });
+                  },
+                  icon: const Icon(
+                    CupertinoIcons.calendar,
+                  ),
                 ),
-              ),
+              ],
             ),
-            IconButton(
-              onPressed: () {
-                showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime.now(),
-                ).then((pickedDate) {
-                  if (pickedDate != null) {
-                    selectedDateFilter = pickedDate;
-                    _filterByDate(pickedDate);
-                  }
-                  setState(() {});
-                });
-              },
-              icon: const Icon(
-                CupertinoIcons.calendar,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       body: Obx(
         () => homeController.orderLoading.isTrue
