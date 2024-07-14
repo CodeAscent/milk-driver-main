@@ -9,7 +9,8 @@ import 'package:water/utils/widgets/app_snackbar.dart';
 
 import 'API_handler/api_base_handler.dart';
 
-updateCollectedBottle(String isCollected, String count, String id) async {
+updateCollectedBottle(
+    String isCollected, String count, String id, String reason) async {
   HomeController homeController = Get.put(HomeController());
 
   homeController.updateLoading.value = true;
@@ -21,6 +22,7 @@ updateCollectedBottle(String isCollected, String count, String id) async {
       "is_collected": isCollected,
       "collected_count": count,
       "delivery_id": id,
+      'bottle_reason': reason,
     },
     useToken: true,
   );

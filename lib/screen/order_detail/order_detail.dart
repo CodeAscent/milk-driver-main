@@ -49,6 +49,7 @@ class OrderDetails extends StatefulWidget {
 class _OrderDetailsState extends State<OrderDetails> {
   HomeController homeController = Get.put(HomeController());
   TextEditingController noOfBottle = TextEditingController();
+  TextEditingController reasonController = TextEditingController();
 
   // String dropdownValue = 'No';
   String? dropdownValue;
@@ -125,6 +126,7 @@ class _OrderDetailsState extends State<OrderDetails> {
   @override
   Widget build(BuildContext context) {
     return Form(
+      autovalidateMode: AutovalidateMode.always,
       key: formKey,
       child: PopScope(
         canPop: true,
@@ -712,10 +714,20 @@ class _OrderDetailsState extends State<OrderDetails> {
                 : TextFormField(
                     controller: noOfBottle,
                     validator: (value) {
-                      if (dropdownValue == 'Yes' ||
-                          dropdownValue == 'Damaged' &&
-                              noOfBottle.text == 0.toString()) {
-                        return 'Bottle count must be more than 0.';
+                      if (dropdownValue == 'Yes') {
+                        if (noOfBottle.text == '') {
+                          return 'Please enter a bottle count';
+                        }
+                        if (noOfBottle.text == 0.toString()) {
+                          return 'Bottle count must be more than 0.';
+                        }
+                      } else if (dropdownValue == 'Damaged') {
+                        if (noOfBottle.text == '') {
+                          return 'Please enter a bottle count';
+                        }
+                        if (noOfBottle.text == 0.toString()) {
+                          return 'Bottle count must be more than 0.';
+                        }
                       }
                       return null;
                     },
@@ -733,6 +745,48 @@ class _OrderDetailsState extends State<OrderDetails> {
                     style: FontStyleUtilities.t1(
                         fontWeight: FWT.medium,
                         fontColor: ColorUtils.kcLightTextColor)),
+            Visibility(
+              visible: dropdownValue == 'Damaged',
+              child: Column(
+                children: [
+                  SpaceUtils.ks10.height(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(UtilsHelper.getString(context, 'Reason?'),
+                          style: FontStyleUtilities.t1(
+                            fontWeight: FWT.bold,
+                          )),
+                    ],
+                  ),
+                  SpaceUtils.ks10.height(),
+                  widget.orderHistory == true
+                      ? const SizedBox()
+                      : TextFormField(
+                          controller: reasonController,
+                          validator: (value) {
+                            if (value == '') {
+                              return 'Please write a reason.';
+                            }
+                            return null;
+                          },
+                          keyboardType: TextInputType.number,
+                          readOnly: dropdownValue == 'No' ||
+                              dropdownValue == 'Not applicable',
+
+                          // obscureText: isObs!,
+                          decoration: InputDecoration.collapsed(
+                              hintText: "Enter the reason for damaged bottles",
+                              hintStyle: FontStyleUtilities.t1(
+                                  fontWeight: FWT.medium,
+                                  fontColor: ColorUtils.kcLightTextColor)),
+                          textAlign: TextAlign.left,
+                          style: FontStyleUtilities.t1(
+                              fontWeight: FWT.medium,
+                              fontColor: ColorUtils.kcLightTextColor)),
+                ],
+              ),
+            ),
             SpaceUtils.ks20.height(),
             ArrowButton(
               isBusy: homeController.updateLoading.value,
@@ -744,7 +798,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                       noOfBottle.text.toString(),
                       widget.orderData.productOrdersDriver![0]
                           .productDeliverysStatus![0].id
-                          .toString());
+                          .toString(),
+                      reasonController.text);
                 }
               },
               tittle: "Submit",
@@ -778,6 +833,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         underline: Container(color: ColorUtils.kcTransparent),
         onChanged: (String? newValue) {
           setState(() {
+            reasonController.clear();
             dropdownValue = newValue!;
             if (newValue == 'No' || newValue == 'Not applicable') {
               noOfBottle.text = 0.toString();

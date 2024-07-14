@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:water/API/get_notification_api.dart';
 import 'package:water/API/get_order_api.dart';
 import 'package:water/main.dart';
+import 'package:water/model/get_order_model.dart';
 import 'package:water/model/setting_data.dart';
 import 'package:water/screen/home_screen/controller/home_controller.dart';
 import 'package:water/screen/home_screen/home_screen.dart';
@@ -32,6 +33,7 @@ class OrderList extends StatefulWidget {
 class _OrderListState extends State<OrderList> {
   HomeController homeController = Get.put(HomeController());
   ScrollController? controller;
+  List<Datum> filteredOrders = [];
 
   @override
   void initState() {
@@ -39,7 +41,7 @@ class _OrderListState extends State<OrderList> {
     super.initState();
     UtilsHelper.loadLocalization(appState.currentLanguageCode.value);
     // Initially show all data
-    homeController.filteredOrderList.value = homeController.orderList;
+    filteredOrders = homeController.orderList;
   }
 
   @override
@@ -61,10 +63,9 @@ class _OrderListState extends State<OrderList> {
     setState(() {
       if (selectedDate == null) {
         // Show all data when filter is cleared
-        homeController.filteredOrderList.value = homeController.orderList;
+        filteredOrders = homeController.orderList;
       } else {
-        homeController.filteredOrderList.value =
-            homeController.orderList.where((order) {
+        filteredOrders = homeController.orderList.where((order) {
           if (order.createdAt != null) {
             return order.createdAt!.year == selectedDate.year &&
                 order.createdAt!.month == selectedDate.month &&
@@ -83,7 +84,7 @@ class _OrderListState extends State<OrderList> {
       stackedEntries: const [],
       tittle: widget.orderHistory
           ? "${UtilsHelper.getString(context, 'Order')} ${UtilsHelper.getString(context, 'History')}"
-          : UtilsHelper.getString(context, 'your_orders'),
+          : "${UtilsHelper.getString(context, 'Your')} ${UtilsHelper.getString(context, 'Order')}",
       actionIcon: Row(
         children: [
           IconButton(
@@ -193,7 +194,7 @@ class _OrderListState extends State<OrderList> {
                   ),
                 ),
               )
-            : homeController.filteredOrderList.length > 0
+            : filteredOrders.length > 0
                 ? ValueListenableBuilder<SettingData>(
                     valueListenable: appState.setting,
                     builder: (context, sets, child) {
@@ -203,17 +204,15 @@ class _OrderListState extends State<OrderList> {
                         child: Column(
                           children: [
                             SpaceUtils.ks100.height(),
-                            homeController.filteredOrderList.isNotEmpty
+                            filteredOrders.isNotEmpty
                                 ? ListView.builder(
                                     shrinkWrap: true,
                                     physics:
                                         const NeverScrollableScrollPhysics(),
-                                    itemCount:
-                                        homeController.filteredOrderList.length,
+                                    itemCount: filteredOrders.length,
                                     itemBuilder: (context, i) {
                                       return OrderTile(
-                                        orderData:
-                                            homeController.filteredOrderList[i],
+                                        orderData: filteredOrders[i],
                                         currency: sets.setting != null
                                             ? sets.setting!.defaultCurrencyCode
                                             : "\$",

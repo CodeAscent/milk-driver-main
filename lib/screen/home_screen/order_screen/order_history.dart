@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:logger/web.dart';
 import 'package:water/API/get_notification_api.dart';
 import 'package:water/API/get_order_api.dart';
 import 'package:water/main.dart';
@@ -32,13 +36,66 @@ class _OrderHistoryState extends State<OrderHistory> {
   HomeController homeController = Get.put(HomeController());
 
   ScrollController? controller;
-  List<Datum> filteredOrders = [];
-
+  List<Map<String, dynamic>> filteredOrders = [];
+  List<Datum> checkList = [];
+  DateTime? selectedDateFilter;
   @override
   void initState() {
+    selectedDateFilter = null;
     controller = ScrollController()..addListener(_scrollListener);
     super.initState();
     UtilsHelper.loadLocalization(appState.currentLanguageCode.value);
+    initData();
+  }
+
+  initData() async {
+    while (homeController.orderLoading.isTrue) {
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    filteredOrders = initFilteredData();
+    setState(() {});
+  }
+
+  List<Map<String, dynamic>> initFilteredData() {
+    filteredOrders.clear();
+    List<Datum> prevData = homeController.orderList;
+    List<Map<String, dynamic>> newData = [];
+    for (var i = 0; i < prevData.length; i++) {
+      for (var j = 0;
+          j <
+              prevData[i]
+                  .productOrdersDriver!
+                  .first
+                  .productDeliverysStatus!
+                  .length;
+          j++) {
+        ProductDeliverysStatus productDeliverysStatus =
+            prevData[i].productOrdersDriver!.first.productDeliverysStatus![j];
+        newData.add(
+          {
+            "product": productDeliverysStatus,
+            "data": prevData[i],
+          },
+        );
+      }
+    }
+
+    return newData;
+  }
+
+  void _filterByDate(DateTime? selectedDate) {
+    setState(() {
+      if (selectedDate == null) {
+        initData();
+      } else {
+        filteredOrders = filteredOrders.where((order) {
+          DateTime deliveryDate = DateTime.parse(order["product"].deliveryDate);
+          return deliveryDate.year == selectedDate.year &&
+              deliveryDate.month == selectedDate.month &&
+              deliveryDate.day == selectedDate.day;
+        }).toList();
+      }
+    });
   }
 
   void _scrollListener() {
@@ -65,7 +122,7 @@ class _OrderHistoryState extends State<OrderHistory> {
       actionIcon: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.qr_code),
+            icon: const Icon(CupertinoIcons.qrcode),
             iconSize: 28,
             onPressed: () {
               Get.to(() => const QrCodeScreen());
@@ -105,6 +162,62 @@ class _OrderHistoryState extends State<OrderHistory> {
           ),
         ],
       ),
+      extraWidget: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 27.0),
+            child: Row(
+              children: [
+                if (selectedDateFilter != null)
+                  Text(
+                    formatter
+                        .format(DateTime.parse(selectedDateFilter.toString())),
+                    style: TextStyle(
+                      color:
+                          dark(context) ? Colors.white : ColorUtils.kcSecondary,
+                    ),
+                  ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    if (selectedDateFilter != null) {
+                      _filterByDate(null); //
+                      selectedDateFilter = null;
+                      setState(() {});
+                    }
+                  },
+                  child: Text(
+                    selectedDateFilter != null ? 'Clear Filter' : 'Date Filter',
+                    style: TextStyle(
+                      color:
+                          dark(context) ? Colors.white : ColorUtils.kcSecondary,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime.now(),
+                    ).then((pickedDate) {
+                      if (pickedDate != null) {
+                        selectedDateFilter = pickedDate;
+                        _filterByDate(pickedDate);
+                      }
+                      setState(() {});
+                    });
+                  },
+                  icon: const Icon(
+                    CupertinoIcons.calendar,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       body: Obx(
         () => homeController.orderLoading.isTrue
             ? const Padding(
@@ -114,7 +227,7 @@ class _OrderHistoryState extends State<OrderHistory> {
                   color: ColorUtils.kcPrimary,
                 )))
             // ignore: prefer_is_empty
-            : homeController.orderList.isNotEmpty
+            : filteredOrders.isNotEmpty
                 ? ValueListenableBuilder<SettingData>(
                     valueListenable: appState.setting,
                     builder: (context, sets, child) {
@@ -124,15 +237,15 @@ class _OrderHistoryState extends State<OrderHistory> {
                         child: Column(
                           children: [
                             SpaceUtils.ks100.height(),
-                            homeController.orderList.isNotEmpty
+                            filteredOrders.isNotEmpty
                                 ? ListView.builder(
                                     shrinkWrap: true,
                                     physics:
                                         const NeverScrollableScrollPhysics(),
-                                    itemCount: homeController.orderList.length,
+                                    itemCount: filteredOrders.length,
                                     itemBuilder: (context, i) {
                                       return OrderHistoryTile(
-                                        orderData: homeController.orderList[i],
+                                        orderData: filteredOrders[i],
                                         currency: sets.setting != null
                                             ? sets.setting!.defaultCurrencyCode
                                             : "\$",

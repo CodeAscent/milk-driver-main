@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import 'package:water/API/API_handler/api_base_handler.dart';
 import 'package:water/API/API_handler/api_urls.dart';
 import 'package:water/model/get_order_model.dart';
@@ -48,12 +49,12 @@ Future getOrderApi({url, orderHistory}) async {
     // ignore: avoid_function_literals_in_foreach_calls
 
     dynamic data = responseData['data'];
+
     if (data is Map && data.isEmpty) {
       homeController.orderList.value = [];
       homeController.orderLoading.value = false;
       return;
     }
-
     getOrderModel.data!.data!.forEach((element) {
       homeController.orderList.add(element);
     });

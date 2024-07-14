@@ -532,29 +532,36 @@ class ProductDeliverysStatus {
   int? productOrderId;
   int? orderStatusId;
   Status? deliveryStatus;
+  dynamic deliveryDate;
+  int? orderId;
 
   ProductDeliverysStatus({
     this.id,
     this.productOrderId,
     this.orderStatusId,
     this.deliveryStatus,
+    this.deliveryDate,
+    this.orderId,
   });
 
   factory ProductDeliverysStatus.fromJson(Map<String, dynamic> json) =>
       ProductDeliverysStatus(
-        id: json["id"],
-        productOrderId: json["product_order_id"],
-        orderStatusId: json["order_status_id"],
-        deliveryStatus: json["delivery_status"] == null
-            ? null
-            : Status.fromJson(json["delivery_status"]),
-      );
+          id: json["id"],
+          productOrderId: json["product_order_id"],
+          orderStatusId: json["order_status_id"],
+          deliveryStatus: json["delivery_status"] == null
+              ? null
+              : Status.fromJson(json["delivery_status"]),
+          deliveryDate: json['delivery_date'],
+          orderId: json['order_id']);
 
   Map<String, dynamic> toJson() => {
         "id": id,
         "product_order_id": productOrderId,
         "order_status_id": orderStatusId,
         "delivery_status": deliveryStatus?.toJson(),
+        "delivery_date": deliveryDate,
+        "order_id": orderId,
       };
 }
 

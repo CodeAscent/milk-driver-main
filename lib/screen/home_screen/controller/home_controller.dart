@@ -12,7 +12,6 @@ class HomeController extends GetxController {
   RxBool isPaging = false.obs;
 
   RxList<Datum> orderList = <Datum>[].obs;
-  RxList<Datum> filteredOrderList = <Datum>[].obs;
 
   // orderDetail
 
@@ -44,4 +43,7 @@ class HomeController extends GetxController {
     emailController.value.text = authController.email.value.toString();
     phoneController.value.text = authController.phone.value.toString();
   }
+
+
+ 
 }
