@@ -46,7 +46,7 @@ class _OrderTileState extends State<OrderTile> {
                     Row(
                       children: [
                         Text(
-                          "Pending",
+                          widget.orderData.orderStatus!.status!,
                           style: FontStyleUtilities.h5(fontWeight: FWT.bold),
                         ),
                         const Spacer(),
