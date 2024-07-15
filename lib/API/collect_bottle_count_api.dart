@@ -29,16 +29,17 @@ updateCollectedBottle(
 
   print("COLLECT BOTTLE ::: ${response.statusCode}");
   print("COLLECT BOTTLE ::: ${response.body}");
+  Get.closeCurrentSnackbar();
 
   if (response.statusCode == 200) {
     homeController.updateLoading.value = false;
+
     appSnackBar(
       title: "Successfully",
       message: jsonDecode(response.body)['message'],
       success: true,
     );
     getOrderApi(url: "", orderHistory: false);
-    Get.back();
   } else {
     homeController.updateLoading.value = false;
     appSnackBar(

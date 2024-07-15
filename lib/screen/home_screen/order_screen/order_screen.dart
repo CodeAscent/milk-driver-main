@@ -11,6 +11,7 @@ import 'package:water/screen/home_screen/home_screen.dart';
 import 'package:water/screen/home_screen/order_screen/widget/order_tile.dart';
 import 'package:water/screen/home_screen/qr_code_screen.dart';
 import 'package:water/screen/notification_screen/nofication.dart';
+import 'package:water/screen/order_detail/order_detail.dart';
 import 'package:water/utils/anim_util.dart';
 import 'package:water/utils/color_utils.dart';
 import 'package:water/utils/fonstyle.dart';
@@ -33,7 +34,7 @@ class OrderList extends StatefulWidget {
 class _OrderListState extends State<OrderList> {
   HomeController homeController = Get.put(HomeController());
   ScrollController? controller;
-  List<Datum> filteredOrders = [];
+  List<Map<String, dynamic>> filteredOrders = [];
 
   @override
   void initState() {
@@ -41,7 +42,7 @@ class _OrderListState extends State<OrderList> {
     super.initState();
     UtilsHelper.loadLocalization(appState.currentLanguageCode.value);
     // Initially show all data
-    filteredOrders = homeController.orderList;
+    initData();
   }
 
   @override
@@ -62,19 +63,51 @@ class _OrderListState extends State<OrderList> {
   void _filterByDate(DateTime? selectedDate) {
     setState(() {
       if (selectedDate == null) {
-        // Show all data when filter is cleared
-        filteredOrders = homeController.orderList;
+        initData();
       } else {
-        filteredOrders = homeController.orderList.where((order) {
-          if (order.createdAt != null) {
-            return order.createdAt!.year == selectedDate.year &&
-                order.createdAt!.month == selectedDate.month &&
-                order.createdAt!.day == selectedDate.day;
-          }
-          return false;
+        filteredOrders = filteredOrders.where((order) {
+          DateTime deliveryDate = DateTime.parse(order["product"].deliveryDate);
+          return deliveryDate.year == selectedDate.year &&
+              deliveryDate.month == selectedDate.month &&
+              deliveryDate.day == selectedDate.day;
         }).toList();
       }
     });
+  }
+
+  initData() async {
+    while (homeController.orderLoading.isTrue) {
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    filteredOrders = initFilteredData();
+    setState(() {});
+  }
+
+  List<Map<String, dynamic>> initFilteredData() {
+    filteredOrders.clear();
+    List<Datum> prevData = homeController.orderList;
+    List<Map<String, dynamic>> newData = [];
+    for (var i = 0; i < prevData.length; i++) {
+      for (var j = 0;
+          j <
+              prevData[i]
+                  .productOrdersDriver!
+                  .first
+                  .productDeliverysStatus!
+                  .length;
+          j++) {
+        ProductDeliverysStatus productDeliverysStatus =
+            prevData[i].productOrdersDriver!.first.productDeliverysStatus![j];
+        newData.add(
+          {
+            "product": productDeliverysStatus,
+            "data": prevData[i],
+          },
+        );
+      }
+    }
+
+    return newData;
   }
 
   DateTime? selectedDateFilter;
@@ -217,6 +250,17 @@ class _OrderListState extends State<OrderList> {
                                             ? sets.setting!.defaultCurrencyCode
                                             : "\$",
                                         orderHistory: widget.orderHistory,
+                                        onTap: () {
+                                          Get.to(() => OrderDetails(
+                                                    orderData:
+                                                        filteredOrders[i],
+                                                    orderHistory:
+                                                        widget.orderHistory,
+                                                  ))!
+                                              .then((val) {
+                                            initData();
+                                          });
+                                        },
                                       );
                                     },
                                   )

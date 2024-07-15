@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import 'package:water/API/API_handler/api_urls.dart';
 import 'package:water/main.dart';
 
@@ -34,6 +35,7 @@ class ApiHandler {
               }
             : {"Content-Type": "application/json"},
         body: jsonEncode(body));
+    Logger().f(ApiUrls.baseUrl + url);
     return response;
   }
 

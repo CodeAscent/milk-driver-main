@@ -1,4 +1,6 @@
 ///FRAME WORK IMPORT...
+// ignore_for_file: avoid_print
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/widgets.dart';
 ///PACKAGES DEPENDED ON...
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:water/API/API_handler/api_urls.dart';
@@ -35,7 +38,7 @@ import '../../utils/app_state.dart';
 import '../../utils/uttil_helper.dart';
 
 class OrderDetails extends StatefulWidget {
-  final Datum orderData;
+  final Map<String, dynamic> orderData;
   final bool orderHistory;
 
   const OrderDetails(
@@ -78,32 +81,35 @@ class _OrderDetailsState extends State<OrderDetails> {
   @override
   void initState() {
     super.initState();
-    order = widget.orderData;
-    selectedStatus = widget
-                    .orderData.productOrdersDriver![0].productDeliverysStatus !=
+    order = widget.orderData['data'];
+    selectedStatus = widget.orderData['data'].productOrdersDriver![0]
+                    .productDeliverysStatus !=
                 null &&
-            widget.orderData.productOrdersDriver![0].productDeliverysStatus !=
+            widget.orderData['data'].productOrdersDriver![0]
+                    .productDeliverysStatus !=
                 null &&
-            widget.orderData.productOrdersDriver![0].productDeliverysStatus!
-                .isNotEmpty
-        ? widget.orderData.productOrdersDriver![0].productDeliverysStatus![0]
-            .deliveryStatus!.status
+            widget.orderData['data'].productOrdersDriver![0]
+                .productDeliverysStatus!.isNotEmpty
+        ? widget.orderData['data'].productOrdersDriver![0]
+            .productDeliverysStatus![0].deliveryStatus!.status
             .toString()
         : '';
-    selectedStatusId =
-        widget.orderData.productOrdersDriver![0].productDeliverysStatus !=
-                    null &&
-                widget.orderData.productOrdersDriver![0].productDeliverysStatus!
-                    .isNotEmpty
-            ? widget.orderData.productOrdersDriver![0]
-                .productDeliverysStatus![0].orderStatusId
-                .toString()
-            : null;
+    selectedStatusId = widget.orderData['data'].productOrdersDriver![0]
+                    .productDeliverysStatus !=
+                null &&
+            widget.orderData['data'].productOrdersDriver![0]
+                .productDeliverysStatus!.isNotEmpty
+        ? widget.orderData['data'].productOrdersDriver![0]
+            .productDeliverysStatus![0].orderStatusId
+            .toString()
+        : null;
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      if (widget.orderData.productOrdersDriver![0].productDeliverysStatus ==
+      if (widget.orderData['data'].productOrdersDriver![0]
+              .productDeliverysStatus ==
           null) {
-        await getOrderDetail(url: widget.orderData.id.toString()).then((value) {
+        await getOrderDetail(url: widget.orderData['data'].id.toString())
+            .then((value) {
           order = value;
           selectedStatus =
               order.productOrdersDriver![0].productDeliverysStatus != null
@@ -206,7 +212,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                     SpaceUtils.ks120.height(),
                     order.productOrdersDriver == null
                         ? const ShimmerLoader(height: 100)
-                        : orderDetailFirstTile(orderData: order),
+                        : orderDetailFirstTile(
+                            orderData: order, productData: widget.orderData),
                     SpaceUtils.ks24.height(),
                     order.productOrdersDriver == null
                         ? SizedBox(
@@ -494,7 +501,8 @@ class _OrderDetailsState extends State<OrderDetails> {
     );
   }
 
-  Widget orderDetailFirstTile({required Datum orderData}) {
+  Widget orderDetailFirstTile(
+      {required Datum orderData, required dynamic productData}) {
     return CommonShadowContainer(
       margin: const EdgeInsets.only(left: 27, right: 27, top: 20),
       padding: const EdgeInsets.all(15),
@@ -505,7 +513,7 @@ class _OrderDetailsState extends State<OrderDetails> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${UtilsHelper.getString(context, 'order_id')}: #${orderData.id.toString()}',
+                '${UtilsHelper.getString(context, 'order_id')}: #${productData['data'].id.toString()}',
                 style: FontStyleUtilities.t1(
                   fontColor: ColorUtils.kcLightTextColor,
                   fontWeight: FWT.bold,
@@ -540,7 +548,7 @@ class _OrderDetailsState extends State<OrderDetails> {
           Row(
             children: [
               Text(
-                  "Collect bottles: ${widget.orderData.bottlesNotReturnedCount}"),
+                  "Collect bottles: ${widget.orderData['data'].bottlesNotReturnedCount}"),
             ],
           ),
         ],
@@ -634,7 +642,8 @@ class _OrderDetailsState extends State<OrderDetails> {
             selectedStatusId = newValue;
             setState(() {});
             changeStatus(
-                statusId: selectedStatusId, orderId: widget.orderData.id);
+                statusId: selectedStatusId,
+                orderId: widget.orderData['product'].id);
           }
         },
         items: authController.orderStatusList
@@ -663,7 +672,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   Widget collectedSummary({required Datum orderDetail}) {
     return Visibility(
-      visible: widget.orderData.bottlesNotReturnedCount != 0,
+      visible: widget.orderData['data'].bottlesNotReturnedCount != 0,
       child: CommonShadowContainer(
         margin: const EdgeInsets.symmetric(horizontal: 27),
         padding: const EdgeInsets.all(15),
@@ -783,22 +792,21 @@ class _OrderDetailsState extends State<OrderDetails> {
               ),
             ),
             SpaceUtils.ks20.height(),
-            ArrowButton(
-              isBusy: homeController.updateLoading.value,
-              onTap: () async {
-                FocusScope.of(context).unfocus();
-                if (formKey.currentState!.validate()) {
-                  updateCollectedBottle(
-                      isBottleCollected!,
-                      noOfBottle.text.toString(),
-                      widget.orderData.productOrdersDriver![0]
-                          .productDeliverysStatus![0].orderId
-                          .toString(),
-                      reasonController.text);
-                }
-              },
-              tittle: "Submit",
-            )
+            Obx(() => ArrowButton(
+                  isBusy: homeController.updateLoading.value,
+                  onTap: () async {
+                    FocusScope.of(context).unfocus();
+                    if (formKey.currentState!.validate()) {
+                      Logger().w(widget.orderData['product']!.id.toString());
+                      updateCollectedBottle(
+                          isBottleCollected!,
+                          noOfBottle.text.toString(),
+                          widget.orderData['product']!.id.toString(),
+                          reasonController.text);
+                    }
+                  },
+                  tittle: "Submit",
+                ))
           ],
         ),
       ),
