@@ -523,12 +523,7 @@ class _OrderDetailsState extends State<OrderDetails> {
               Expanded(
                 child: Text(
                   UtilsHelper.getString(
-                      context,
-                      selectedStatus
-                          .toLowerCase()
-                          .toString()
-                          .split(' ')
-                          .join('_')),
+                      context, selectedStatus.toString().split(' ').join('_')),
                   style: FontStyleUtilities.h5(fontWeight: FWT.bold),
                 ),
               ),
@@ -797,7 +792,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                       isBottleCollected!,
                       noOfBottle.text.toString(),
                       widget.orderData.productOrdersDriver![0]
-                          .productDeliverysStatus![0].id
+                          .productDeliverysStatus![0].orderId
                           .toString(),
                       reasonController.text);
                 }

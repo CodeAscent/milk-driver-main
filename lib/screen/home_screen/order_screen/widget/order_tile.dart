@@ -46,7 +46,9 @@ class _OrderTileState extends State<OrderTile> {
                     Row(
                       children: [
                         Text(
-                          widget.orderData.orderStatus!.status!,
+                          widget.orderData.productOrdersDriver![0]
+                              .productDeliverysStatus![0].deliveryStatus!.status
+                              .toString(),
                           style: FontStyleUtilities.h5(fontWeight: FWT.bold),
                         ),
                         const Spacer(),
