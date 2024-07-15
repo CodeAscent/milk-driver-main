@@ -49,11 +49,19 @@ class _OrderHistoryState extends State<OrderHistory> {
   }
 
   initData() async {
+    Logger().w('----------> hii');
+    await getOrderApi(url: "", orderHistory: true);
     while (homeController.orderLoading.isTrue) {
       await Future.delayed(const Duration(seconds: 1));
     }
     filteredOrders = initFilteredData();
     setState(() {});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    initData();
   }
 
   List<Map<String, dynamic>> initFilteredData() {

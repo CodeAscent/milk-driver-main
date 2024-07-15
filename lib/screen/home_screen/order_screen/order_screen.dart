@@ -76,6 +76,8 @@ class _OrderListState extends State<OrderList> {
   }
 
   initData() async {
+    await getOrderApi(url: "", orderHistory: false);
+
     while (homeController.orderLoading.isTrue) {
       await Future.delayed(const Duration(seconds: 1));
     }

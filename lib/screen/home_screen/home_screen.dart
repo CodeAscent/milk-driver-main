@@ -26,20 +26,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    gets.remove('url');
     super.initState();
     UtilsHelper.loadLocalization(appState.currentLanguageCode.value);
   }
 
   onTap(int index) {
-    selectedIndex = index;
+    setState(() {
+      selectedIndex = index;
+    });
+
     if (index == 2) {
       getOrderApi(url: "", orderHistory: true);
-    }
-    if (index == 1) {
+    } else if (index == 1) {
       getOrderApi(url: "", orderHistory: false);
     }
-    setState(() {});
   }
 
   @override
@@ -68,7 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? ColorUtils.kcPrimary
                       : ColorUtils.kcSecondary),
               child: Container(
-                // color: ColorUtils.kcWhite,
                 padding: const EdgeInsets.all(16.0),
                 child: SvgPicture.asset(IconUtil.store),
               ),
@@ -108,10 +107,15 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: LazyIndexedStack(
         index: selectedIndex,
-        children: const [
-          Profile(),
-          OrderList(orderHistory: false),
-          OrderHistory(),
+        children: [
+          const Profile(key: ValueKey('Profile')),
+          OrderList(
+              key: ValueKey(
+                  'OrderList_${DateTime.now().millisecondsSinceEpoch}'),
+              orderHistory: false),
+          OrderHistory(
+              key: ValueKey(
+                  'OrderHistory_${DateTime.now().millisecondsSinceEpoch}')),
         ],
       ),
     );
