@@ -1,6 +1,8 @@
 ///FRAME WORK IMPORT...
 // ignore_for_file: avoid_print
 
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -286,7 +288,19 @@ class _OrderDetailsState extends State<OrderDetails> {
                                           (e) => productsTile(orderDetail: e))
                                     ]),
                               ),
-                    SpaceUtils.ks24.height(),
+                    SpaceUtils.ks10.height(),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 27, right: 27),
+                      child: Text(
+                        UtilsHelper.getString(context, 'Amount'),
+                        style: FontStyleUtilities.h5(fontWeight: FWT.semiBold),
+                      ),
+                    ),
+                    SpaceUtils.ks10.height(),
+                    order.productOrdersDriver == null
+                        ? const ShimmerLoader(height: 250)
+                        : totalSummary(orderDetail: order),
+                    SpaceUtils.ks10.height(),
                     Padding(
                       padding: const EdgeInsets.only(left: 27, right: 27),
                       child: Text(
@@ -531,7 +545,12 @@ class _OrderDetailsState extends State<OrderDetails> {
               Expanded(
                 child: Text(
                   UtilsHelper.getString(
-                      context, selectedStatus.toString().split(' ').join('_')),
+                      context,
+                      selectedStatus
+                          .toString()
+                          .toLowerCase()
+                          .split(' ')
+                          .join('_')),
                   style: FontStyleUtilities.h5(fontWeight: FWT.bold),
                 ),
               ),
@@ -556,40 +575,13 @@ class _OrderDetailsState extends State<OrderDetails> {
     );
   }
 
-  Widget paymentSummary({required Datum orderDetail}) {
+  Widget totalSummary({required Datum orderDetail}) {
     return CommonShadowContainer(
       margin: const EdgeInsets.symmetric(horizontal: 27),
       padding: const EdgeInsets.all(15),
       child: Column(
         children: [
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Text('Subtotal',
-          //         style: FontStyleUtilities.t1(
-          //             fontColor: ColorUtils.kcLightTextColor)),
-          //     Text('${orderDetail.order!.subtotal} SAR',
-          //         style: FontStyleUtilities.h5(fontWeight: FWT.semiBold)),
-          //   ],
-          // ),
-          // SpaceUtils.ks7.height(),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Text('TAX',
-          //         style: FontStyleUtilities.t1(
-          //             fontColor: ColorUtils.kcLightTextColor)),
-          //     Text('${orderDetail.order!.tax} SAR',
-          //         style: FontStyleUtilities.h5(fontWeight: FWT.semiBold)),
-          //   ],
-          // ),
-          // SpaceUtils.ks10.height(),
-          // const Divider(
-          //   thickness: 1,
-          //   height: 1,
-          //   color: ColorUtils.kcDividerColor,
-          // ),
-          SpaceUtils.ks10.height(),
+          //   SpaceUtils.ks10.height(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -602,6 +594,17 @@ class _OrderDetailsState extends State<OrderDetails> {
                   style: FontStyleUtilities.h5(fontWeight: FWT.bold)),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget paymentSummary({required Datum orderDetail}) {
+    return CommonShadowContainer(
+      margin: const EdgeInsets.symmetric(horizontal: 27),
+      padding: const EdgeInsets.all(15),
+      child: Column(
+        children: [
           widget.orderHistory == true ? const SizedBox() : statusDropDown(),
           widget.orderHistory == true
               ? const SizedBox()
@@ -617,6 +620,7 @@ class _OrderDetailsState extends State<OrderDetails> {
   }
 
   Widget statusDropDown() {
+    Logger().f(jsonEncode(authController.orderStatusList));
     return SizedBox(
       // decoration: widget.decoration,
       height: 40,
