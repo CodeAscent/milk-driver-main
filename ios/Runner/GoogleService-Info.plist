@@ -2,24 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>951189062000-m3ufs7no7oq94l0gva4osq0t36q0cbuv.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.951189062000-m3ufs7no7oq94l0gva4osq0t36q0cbuv</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>951189062000-0r5cthee7un7h8skdfpepgqlpg84ac06.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyClr-q2oO4N6_c-i0cPYJpOCu47Zpvutg8</string>
+	<string>AIzaSyBspOLIuvi_q-nUd95TQ16JUSGBoShoU9Q</string>
 	<key>GCM_SENDER_ID</key>
-	<string>951189062000</string>
+	<string>1078427920911</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>subscription.driverapp.com</string>
+	<string>com.dome.driver</string>
 	<key>PROJECT_ID</key>
-	<string>water-app-b9052</string>
+	<string>mamas-milk</string>
 	<key>STORAGE_BUCKET</key>
-	<string>water-app-b9052.appspot.com</string>
+	<string>mamas-milk.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:951189062000:ios:d714d9b2e3c459f24d4fb5</string>
+	<string>1:1078427920911:ios:6baa077b04e397afeb917a</string>
 </dict>
 </plist>
