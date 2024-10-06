@@ -204,6 +204,8 @@ class _OrderListState extends State<OrderList> {
                       lastDate: DateTime.now(),
                     ).then((pickedDate) {
                       if (pickedDate != null) {
+                        filteredOrders = initFilteredData();
+
                         selectedDateFilter = pickedDate;
                         _filterByDate(pickedDate);
                       }

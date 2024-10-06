@@ -10,6 +10,7 @@ class ApiHandler {
     print("I am here");
     print(useBaseUrl ? ApiUrls.baseUrl + url : url);
     print(authController.token.value);
+    print('------------>${Uri.parse(ApiUrls.baseUrl + url)}');
     http.Response response = await http.get(
       useBaseUrl ? Uri.parse(ApiUrls.baseUrl + url) : Uri.parse(url),
       headers: {
@@ -17,7 +18,7 @@ class ApiHandler {
         "api-token": authController.token.value
       },
     );
-    print('---------->$response');
+    print('---------->${response.body}');
     return response;
   }
 
@@ -25,8 +26,9 @@ class ApiHandler {
       {Map<String, dynamic>? body,
       bool? withToken,
       bool? useToken = true}) async {
-    print(Uri.parse(ApiUrls.baseUrl + url));
-    print(jsonEncode(body));
+    print('------------>${Uri.parse(ApiUrls.baseUrl + url)}');
+    print('------------>${jsonEncode(body)}');
+
     http.Response response = await http.post(Uri.parse(ApiUrls.baseUrl + url),
         headers: useToken == true
             ? {
@@ -36,6 +38,8 @@ class ApiHandler {
             : {"Content-Type": "application/json"},
         body: jsonEncode(body));
     Logger().f(ApiUrls.baseUrl + url);
+    print('------------>${response.body}');
+
     return response;
   }
 

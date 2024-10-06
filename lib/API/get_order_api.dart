@@ -11,63 +11,67 @@ import 'package:water/screen/home_screen/controller/home_controller.dart';
 Future getOrderApi({url, orderHistory}) async {
   HomeController homeController = Get.put(HomeController());
 
-  if (url.toString() == "" || url.toString() == null) {
-    homeController.orderLoading.value = true;
-  } else {
-    homeController.paginationLoading.value = true;
-  }
-
-  var apiUrl = "";
-
-  if (url.toString() == "" && orderHistory == false) {
-    apiUrl = ApiUrls.orderList;
-  } else if (url.toString() == "" && orderHistory == true) {
-    apiUrl = '${ApiUrls.orderList}?type=past';
-  } else {
-    apiUrl = url.toString();
-  }
-
-  print("This is Api url order function $apiUrl");
-
-  http.Response response = await ApiHandler.get(
-    apiUrl,
-    useBaseUrl: url.toString() == "" || url.toString() == null ? true : false,
-  );
-  // print("ORDER LIST ::: ${response.statusCode}");
-  print(response.body);
-  print("ORDER LIST::: ${response.body}");
-
-  Map<String, dynamic> responseData = json.decode(response.body);
-
-  if (response.statusCode == 200) {
+  try {
     if (url.toString() == "" || url.toString() == null) {
-      homeController.orderList.value = [];
+      homeController.orderLoading.value = true;
+    } else {
+      homeController.paginationLoading.value = true;
     }
 
-    GetOrderModel getOrderModel = getOrderModelFromJson(response.body);
+    var apiUrl = "";
 
-    // ignore: avoid_function_literals_in_foreach_calls
+    if (url.toString() == "" && orderHistory == false) {
+      apiUrl = ApiUrls.orderList;
+    } else if (url.toString() == "" && orderHistory == true) {
+      apiUrl = '${ApiUrls.orderList}?type=past';
+    } else {
+      apiUrl = url.toString();
+    }
 
-    dynamic data = responseData['data'];
+    print("This is Api url order function $apiUrl");
 
-    if (data is Map && data.isEmpty) {
-      homeController.orderList.value = [];
+    http.Response response = await ApiHandler.get(
+      apiUrl,
+      useBaseUrl: url.toString() == "" || url.toString() == null ? true : false,
+    );
+    // print("ORDER LIST ::: ${response.statusCode}");
+    print(response.body);
+    print("ORDER LIST::: ${response.body}");
+
+    Map<String, dynamic> responseData = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      if (url.toString() == "" || url.toString() == null) {
+        homeController.orderList.value = [];
+      }
+
+      GetOrderModel getOrderModel = getOrderModelFromJson(response.body);
+
+      // ignore: avoid_function_literals_in_foreach_calls
+
+      dynamic data = responseData['data'];
+
+      if (data is Map && data.isEmpty) {
+        homeController.orderList.value = [];
+        homeController.orderLoading.value = false;
+        return;
+      }
+      getOrderModel.data!.data!.forEach((element) {
+        homeController.orderList.add(element);
+      });
+
+      homeController.nextUrl.value = getOrderModel.data!.nextPageUrl.toString();
       homeController.orderLoading.value = false;
-      return;
-    }
-    getOrderModel.data!.data!.forEach((element) {
-      homeController.orderList.add(element);
-    });
+      if (getOrderModel.data!.nextPageUrl.toString() != "null") {
+        homeController.isPaging.value = true;
+      }
 
-    homeController.nextUrl.value = getOrderModel.data!.nextPageUrl.toString();
-    homeController.orderLoading.value = false;
-    if (getOrderModel.data!.nextPageUrl.toString() != "null") {
-      homeController.isPaging.value = true;
+      homeController.paginationLoading.value = false;
+    } else {
+      homeController.orderLoading.value = false;
     }
-
-    homeController.paginationLoading.value = false;
-  } else {
-    homeController.orderLoading.value = false;
+  } catch (e) {
+  } finally {
     homeController.paginationLoading.value = false;
   }
 }
