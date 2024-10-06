@@ -66,20 +66,21 @@ class _MapScreenState extends State<MapScreen> {
         double.parse(widget.userLongitude.toString()),
       )
     ];
-    await polylinePoints
-        .getRouteBetweenCoordinates(
-      'AIzaSyB_kIX5UrOzY9KC14LVNRAIsZCkx3xBXeA',
-      PointLatLng(currentLocation!.latitude, currentLocation!.longitude),
-      PointLatLng(widget.userLatitude, widget.userLongitude),
-      travelMode: TravelMode.driving,
-    )
-        .then((value) {
-      for (var point in value.points) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      }
-    }).then((value) {
-      addPolyLine();
-    });
+
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        googleApiKey: 'AIzaSyB_kIX5UrOzY9KC14LVNRAIsZCkx3xBXeA',
+        request: PolylineRequest(
+          origin: PointLatLng(
+              currentLocation!.latitude, currentLocation!.longitude),
+          destination: PointLatLng(widget.userLatitude, widget.userLongitude),
+          mode: TravelMode.driving,
+        ));
+
+    for (var point in result.points) {
+      polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+    }
+
+    addPolyLine();
   }
 
   addPolyLine() {
@@ -122,9 +123,13 @@ class _MapScreenState extends State<MapScreen> {
             onTap: () {
               Navigator.pop(context);
             },
-            child: Icon(UtilsHelper.rightHandLang.contains(appState.currentLanguageCode.value)? 
-             Icons.arrow_forward
-            :Icons.arrow_back,color: isDark.value ? Colors.white : null,)),
+            child: Icon(
+              UtilsHelper.rightHandLang
+                      .contains(appState.currentLanguageCode.value)
+                  ? Icons.arrow_forward
+                  : Icons.arrow_back,
+              color: isDark.value ? Colors.white : null,
+            )),
       ),
       stackedEntries: [
         Align(
@@ -136,7 +141,7 @@ class _MapScreenState extends State<MapScreen> {
             height: 96,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: isDark.value ? ColorUtils.kcCardColor: ColorUtils.kcWhite,
+              color: isDark.value ? ColorUtils.kcCardColor : ColorUtils.kcWhite,
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
               boxShadow: [
@@ -177,34 +182,36 @@ class _MapScreenState extends State<MapScreen> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       tittle: UtilsHelper.getString(context, 'delivery_address'),
-      body: _center==null ? Container(
-        child: const Center(child: CircularProgressIndicator()),
-      ) : SafeArea(
-        child: GoogleMap(
-          zoomControlsEnabled: false,
-          myLocationEnabled: true,
-          compassEnabled: false,
-          mapToolbarEnabled: false,
-          onMapCreated: (GoogleMapController controller) {
-            _controller = controller;
-          },
-          polylines: Set<Polyline>.of(polyLines.values),
-          onTap: (LatLng x) {},
-          markers: {
-            ...List<Marker>.generate(
-                markers.length,
-                (index) => Marker(
-                    onTap: () {},
-                    icon: BitmapDescriptor.defaultMarker,
-                    markerId: MarkerId(index.toString()),
-                    position: markers[index])).toList()
-          },
-          initialCameraPosition: CameraPosition(
-            zoom: 18,
-            target: _center!,
-          ),
-        ),
-      ),
+      body: _center == null
+          ? Container(
+              child: const Center(child: CircularProgressIndicator()),
+            )
+          : SafeArea(
+              child: GoogleMap(
+                zoomControlsEnabled: false,
+                myLocationEnabled: true,
+                compassEnabled: false,
+                mapToolbarEnabled: false,
+                onMapCreated: (GoogleMapController controller) {
+                  _controller = controller;
+                },
+                polylines: Set<Polyline>.of(polyLines.values),
+                onTap: (LatLng x) {},
+                markers: {
+                  ...List<Marker>.generate(
+                      markers.length,
+                      (index) => Marker(
+                          onTap: () {},
+                          icon: BitmapDescriptor.defaultMarker,
+                          markerId: MarkerId(index.toString()),
+                          position: markers[index])).toList()
+                },
+                initialCameraPosition: CameraPosition(
+                  zoom: 18,
+                  target: _center!,
+                ),
+              ),
+            ),
     );
   }
 }
