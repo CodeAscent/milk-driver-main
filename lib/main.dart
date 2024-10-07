@@ -14,8 +14,6 @@ import 'package:water/screen/splash.dart';
 import 'package:water/utils/app_state.dart';
 import 'package:water/utils/route.dart';
 import 'package:water/utils/uttil_helper.dart';
-
-import 'API/API_handler/lang.dart';
 import 'Utils/color_utils.dart';
 
 late AuthController authController;
@@ -62,12 +60,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
-
   @override
   void initState() {
-   
-
     OneSignal.Notifications.addClickListener((result) async {
       result.preventDefault();
 

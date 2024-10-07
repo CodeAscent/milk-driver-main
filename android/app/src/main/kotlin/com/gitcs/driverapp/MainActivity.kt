@@ -1,4 +1,4 @@
-package com.gitcs.driverapp
+package com.mamasmilk.driver
 
 import io.flutter.embedding.android.FlutterActivity
 

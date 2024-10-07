@@ -33,6 +33,7 @@ updateCollectedBottle(
 
   if (response.statusCode == 200) {
     homeController.updateLoading.value = false;
+    Get.back();
 
     appSnackBar(
       title: "Successfully",

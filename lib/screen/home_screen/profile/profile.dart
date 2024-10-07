@@ -102,15 +102,15 @@ class _ProfileState extends State<Profile> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ArrowButton(
-                      onTap: () async => selectLanguageBottomSheet(context,
-                              lang: appState.currentLanguageCode.value)
-                          .then((value) {
-                        setState(() {});
-                      }),
-                      tittle: UtilsHelper.getString(context, "select_language"),
-                      isUpdate: true,
-                    ),
+                    //     ArrowButton(
+                    //       onTap: () async => selectLanguageBottomSheet(context,
+                    //               lang: appState.currentLanguageCode.value)
+                    //           .then((value) {
+                    //         setState(() {});
+                    //       }),
+                    //       tittle: UtilsHelper.getString(context, "select_language"),
+                    //       isUpdate: true,
+                    //     ),
                     ArrowButton(
                       onTap: () {
                         Get.dialog(Dialog(

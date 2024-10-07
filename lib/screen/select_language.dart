@@ -27,6 +27,10 @@ class _SelectLanguageState extends State<SelectLanguage> {
     super.initState();
   }
 
+  bool dark(context) {
+    return Theme.of(context).brightness == Brightness.dark;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -39,8 +43,8 @@ class _SelectLanguageState extends State<SelectLanguage> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 57),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
                   SizedBox(
                     // height: size.height / 2.25,
                     child: Center(
@@ -50,76 +54,47 @@ class _SelectLanguageState extends State<SelectLanguage> {
                       ),
                     ),
                   ),
-                  const Spacer(),
+                  SizedBox(height: 100),
                   Text(
-                    'Select Language',
+                    'Welcome!',
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? ColorUtils.kcWhite
-                            : ColorUtils.kcBlack,
+                        color: dark(context)
+                            ? Colors.white
+                            : ColorUtils.kcSecondary,
                         fontSize: 24,
                         fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(
-                    height: 51,
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final get = GetStorage();
+                      get.write("language", 'en');
+                      appState.currentLanguageCode.value = 'en';
+                      setState(() {});
+
+                      setState(() {});
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 15),
+                      backgroundColor: ColorUtils.kcSecondary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      "Let's Start",
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  if (appState.setting.value.languages != null)
-                    ...value.languages!.asMap().entries.map((e) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          selectLanguageButton(
-                            width: size.width,
-                            onPress: () async {
-                              print(e.value.languageName);
-                              appState.languageItem = e.value;
-                              final get = GetStorage();
-                              get.write("language", e.value.languageCode);
-                              appState.currentLanguageCode.value =
-                                  e.value.languageCode!;
-                              //  var auth  = ApiHandler();
-                              appState.languageKeys = await getKeysLists(
-                                  appState.currentLanguageCode.value);
-                              // EasyLocalization.of(context)?.setLocale(
-                              //     Locale(
-                              //         languageItem.languageCode!,
-                              //         languageItem.languageCode == "ar"
-                              //             ? 'AE'
-                              //             : 'US'));
-                              // TODO : Need to add country code in language object in setting api
-                              // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => widget.isFromProfile ?
-                              //   HomeScreen()
-                              //  :const LoginScreen()),(route) => false);
-                              UtilsHelper.loadLocalization(
-                                  e.value.languageCode!);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const LoginScreen()));
-                            },
-                            prefixPath: 'asset/icons/icon_arrow.svg',
-                            title: e.value.languageCode == "ar"
-                                ? 'العربية'
-                                : e.value.languageName!.toUpperCase(),
-                            // TODO : Need to make dynamic data
-                            textStyle:
-                                Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      fontSize: 16,
-                                      // fontWeight: FontWeight.bold,
-                                      color: ColorUtils.kcWhite,
-                                    ),
-                            color: e.key % 2 == 0
-                                ? ColorUtils.kcPrimary
-                                : ColorUtils.kcSecondary,
-                          ),
-                          const SizedBox(
-                            height: 11,
-                          ),
-                        ],
-                      );
-                    }),
-                  const Spacer(),
+                  SizedBox(height: 200),
                 ],
               ),
             );
@@ -127,3 +102,21 @@ class _SelectLanguageState extends State<SelectLanguage> {
     );
   }
 }
+
+//    print(e.value.languageName);
+//                               appState.languageItem = e.value;
+//                               final get = GetStorage();
+//                               get.write("language", e.value.languageCode);
+//                               appState.currentLanguageCode.value =
+//                                   e.value.languageCode!;
+//                               //  var auth  = ApiHandler();
+//                               appState.languageKeys = await getKeysLists(
+//                                   appState.currentLanguageCode.value);
+                            
+//                               UtilsHelper.loadLocalization(
+//                                   e.value.languageCode!);
+//                               Navigator.push(
+//                                   context,
+//                                   MaterialPageRoute(
+//                                       builder: (context) =>
+//                                           const LoginScreen()));

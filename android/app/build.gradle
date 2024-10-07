@@ -33,12 +33,14 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
+    namespace = "com.mamasmilk.driver"
+
     compileSdkVersion 34
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+    // compileOptions {
+    //     sourceCompatibility JavaVersion.VERSION_1_8
+    //     targetCompatibility JavaVersion.VERSION_1_8
+    // }
 
     kotlinOptions {
         jvmTarget = '1.8'
@@ -69,7 +71,7 @@ android {
 
     buildTypes {
         release {
-            debuggable true
+            // debuggable true
             shrinkResources false
             minifyEnabled false
             // TODO: Add your own signing config for the release build.
@@ -77,17 +79,20 @@ android {
             signingConfig signingConfigs.release
         }
         debug {
-            minifyEnabled false
-        }   
+            shrinkResources false
+            minifyEnabled false        }   
     }
 }
 
 flutter {
     source '../..'
 }
+repositories {
+    mavenCentral()
+}
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.20"
     implementation 'com.android.support:multidex:2.0.1' //enter the latest multidex version
 
 }

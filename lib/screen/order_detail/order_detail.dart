@@ -35,6 +35,7 @@ import 'package:water/screen/home_screen/home_screen.dart';
 import 'package:water/screen/map_screen/map.dart';
 import 'package:water/screen/notification_screen/nofication.dart';
 import 'package:water/utils/shimmer.dart';
+import 'package:water/utils/widgets/app_snackbar.dart';
 
 import '../../utils/app_state.dart';
 import '../../utils/uttil_helper.dart';
@@ -517,6 +518,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   Widget orderDetailFirstTile(
       {required Datum orderData, required dynamic productData}) {
+//     Logger().w('-------------> , ${jsonEncode(widget.orderData['data'])}');
     return CommonShadowContainer(
       margin: const EdgeInsets.only(left: 27, right: 27, top: 20),
       padding: const EdgeInsets.all(15),
@@ -800,13 +802,23 @@ class _OrderDetailsState extends State<OrderDetails> {
                   isBusy: homeController.updateLoading.value,
                   onTap: () async {
                     FocusScope.of(context).unfocus();
-                    if (formKey.currentState!.validate()) {
-                      Logger().w(widget.orderData['product']!.id.toString());
-                      updateCollectedBottle(
-                          isBottleCollected!,
-                          noOfBottle.text.toString(),
-                          widget.orderData['product']!.id.toString(),
-                          reasonController.text);
+                    if (int.parse(noOfBottle.text) >
+                        widget.orderData['data'].bottlesNotReturnedCount) {
+                      appSnackBar(
+                        title: "Failed",
+                        message:
+                            "Cannot collect more than ${widget.orderData['data'].bottlesNotReturnedCount} bottles",
+                        success: false,
+                      );
+                    } else {
+                      if (formKey.currentState!.validate()) {
+                        Logger().w(widget.orderData['product']!.id.toString());
+                        updateCollectedBottle(
+                            isBottleCollected!,
+                            noOfBottle.text.toString(),
+                            widget.orderData['product']!.id.toString(),
+                            reasonController.text);
+                      }
                     }
                   },
                   tittle: "Submit",
